@@ -30,9 +30,9 @@ X_train, X_test, y_train, y_test = train_test_split(
 print(f"Train : {X_train.shape}, Test : {X_test.shape}")
 
 # Training Menggunakan MLFLOW AUTOLOG
-mlflow.set_experiment("eccomerce-modelling")
+experiment = mlflow.set_experiment("eccomerce-modelling")
 
-with mlflow.start_run(run_name="RandomForest_baseline"):
+with mlflow.start_run(run_name="RandomForest_baseline") as run:
     mlflow.sklearn.autolog()
 
     # Train Model
@@ -50,6 +50,12 @@ with mlflow.start_run(run_name="RandomForest_baseline"):
     print("\nClassification Report:")
     print(classification_report(y_test,y_pred))
 
+    # CATATAN UNTUK ADVANCED CI:
+    # Simpan path model hasil run ke file teks agar bisa dibaca oleh GitHub Actions
+    experiment_id = experiment.experiment_id
+    run_id = run.info.run_id
+    model_path = f"mlruns/{experiment_id}/{run_id}/artifacts/model"
+    with open("model_path.txt", "w") as f:
+        f.write(model_path)
+
 print("Model Berhasil Dilatih!!")
-          
-          
