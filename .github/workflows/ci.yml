@@ -1,4 +1,4 @@
-name: CI - Model Training
+name: CI - Model Training & Docker Build
 
 on:
   push:
@@ -6,17 +6,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  train:
+  train-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.12.7'
 
       - name: Install Dependencies
         run: |
@@ -28,7 +28,22 @@ jobs:
           mlflow run . --env-manager=local
 
       - name: Upload Artifacts to GitHub
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: mlflow-artifacts
           path: MLProject/mlruns/
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build Docker Image using MLflow
+        run: |
+          MODEL_PATH=$(cat MLProject/model_path.txt)
+          mlflow models build-docker -m "MLProject/$MODEL_PATH" -n "${{ secrets.DOCKER_HUB_USERNAME }}/workflow-ci:latest"
+
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/workflow-ci:latest
