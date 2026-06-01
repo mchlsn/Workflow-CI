@@ -5,7 +5,7 @@ on:
     branches: [ master ]
   workflow_dispatch:
 
-jobs:
+jobs:git commit -m "Update workflow to use upload-artifact v4 and add Docker support"
   train-and-deploy:
     runs-on: ubuntu-latest
 
