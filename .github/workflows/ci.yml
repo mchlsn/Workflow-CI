@@ -42,7 +42,7 @@ jobs:
       - name: Build Docker Image using MLflow
         run: |
           MODEL_PATH=$(cat MLProject/model_path.txt)
-          mlflow models build-docker -m "MLProject/$MODEL_PATH" -n "${{ secrets.DOCKER_HUB_USERNAME }}/workflow-ci:latest" --env-manager=conda
+          mlflow models build-docker -m "MLProject/$MODEL_PATH" -n "${{ secrets.DOCKER_HUB_USERNAME }}/workflow-ci:latest" --env-manager=local
 
       - name: Push Docker Image to Docker Hub
         run: |
